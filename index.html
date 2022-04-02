@@ -1,0 +1,137 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <style>
+        .container {
+            position: relative;
+        }
+
+        .container > canvas {
+            position: absolute;
+            top: 0;
+            left: 0;
+        }
+
+
+    </style>
+</head>
+<body>
+
+    <div id = "container" class = "container">
+        <canvas id = "canvas_background" width = "1000" height = "1000"></canvas>
+        <canvas id = "canvas_foreground" width = "1000" height = "1000"></canvas>
+    </div>
+
+    <script>
+        const X_PIXELS=20
+        const Y_PIXELS=20
+        const X_OFFSET=100
+        const Y_OFFSET=100
+
+        const X_IN_PLACE=1515
+        const Y_IN_PLACE=661
+
+        function getMousePos(canvas, evt) {
+            const rect = canvas.getBoundingClientRect();
+            return {
+                x: (evt.clientX - rect.left - 20) / (rect.right - rect.left) * canvas.width,
+                y: (evt.clientY - rect.top) / (rect.bottom - rect.top) * canvas.height
+            };
+        }
+
+        function drawGrid(x_0, y_0, x_max, y_max, ctx) {
+            for (let x = x_0; x <= x_max; x += X_PIXELS) {
+                ctx.moveTo(x, y_0);
+                ctx.lineTo(x, y_max);
+                for (let y = y_0; y <= y_max; y += Y_PIXELS) {
+                    ctx.moveTo(x_0, y);
+                    ctx.lineTo(x_max, y);
+                }
+            }
+            ctx.strokeStyle = '#bbbbbb';
+            ctx.stroke();
+        }
+
+        const background = document.getElementById("canvas_background");
+        const bg = background.getContext("2d");
+
+        const  foreground = document.getElementById("canvas_foreground");
+        const fg = foreground.getContext("2d");
+
+        const img = new Image();
+        img.onload = function(){
+            w = img.width * X_PIXELS
+            h = img.height * Y_PIXELS
+
+            bg.canvas.width  = w + X_OFFSET;
+            bg.canvas.height = h + 2*Y_OFFSET;
+
+            fg.canvas.width  = bg.canvas.width;
+            fg.canvas.height = bg.canvas.height;
+            bg.imageSmoothingEnabled = false;
+            bg.drawImage(img, 0, 0, img.width, img.height, 0, Y_OFFSET, w, h)
+            drawGrid(0, Y_OFFSET, w, h + Y_OFFSET, bg)
+        };
+        img.src = 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABUAAAAyCAYAAACzvpAYAAAI4ElEQVRYR52XaVSTVxrHb3YSkkAIIQnZWGOKRED2VbbBojOoVWkrhxGXwnyhHK3tqZ6eyumZo3bq6NQ549YzneKKItURi1YxLAKCeEAw7CQs2VllDwlJ5r4ZEtEjKN5PyX3v/b3P83/+d3lRYJkmEvl/JJfLDhqNc94uLvSbAQHibyUSiWq5Ocgz1FIDRGJx5KBKc5lCInkCNAoYDAYzgUQ80CeXn3xvqBubneEr8LiYf+ggiubkBFpaW8GRv5+o5fK4GysqKl4sB14yUl9f0acEHPaSSOiDTklMBGqtFvTIZE23a2qSJ5TK0feCBooDdwT4rL4k7WlHpaYmAzQaDVQaTdWvjx6ljcnl4+8FFa9dG0ywYIvHX4wLpmYmQGCAeNRoNn9dVlb203trmpWV5VBTXX9XLFwdr1YrgAUL/kskE/dCPYffGxoRE58s9PX6mU5x5Wk1GtDT11345Zf7d6anpxtWDM3OzyfVFP2aJJPJjn+SmSGMTUgAA319oLjoerdWobrj6uomSUyMqzh9+vTUUnB79TMzMx0bG5tjlWrlrsnx8RSz2eSMwWDB+o0bgdFoBA/v/w6IJBLQz8xOkMjkMg6Pe65DKr3/JrAVum/fPuKlK1e/Hxka2glh1KUicGOxwSC0FgAWgMcTFN6rhLvbnz8ve328FZqamsooK5NUwOXo9yYgC+sAhuYNgM50A4M6nRWKNDcW6yv4kh+WgT6UGI0G/zdBw6nuYNAwBSacSGBkEdSJ5nI1bc/uzy4ePz69eN6iSJeGuuNIgIjBg3EnBzC8CIrB4HsiIkLX1dTUqFcM5eAcAQGDAWq0CRZqxp4+hPaGxUalPK6o6FkxlI0lAT7ZGTyd0AGT2bRoPsrkzuPmqRWKf60YigFoEElzB7VjKmBeKJINQmcwDkHXHF0xFJkQRGGBlslBYILYxc2ZRrucvn179vnz5xFdrO2dCmW1D8kFGOHoselXdz2oa39IdMQf6ququlcMxcHqYzA4oDe84h4kLhOPx89TKPrtur5zpG/yr60P+rUQ+nWvza9WaNKWLfSqO7+VQ/OLl5u81DOYQX9oaHB8XV1dn13TNcHB4a3PmotNpnkO7EQ8g1kJHIPB9K0JD49vqq3tt0OZTPfPdTr1j1CfWWeaS92LsZG4lYBhpIqQkLVJ9fX11mJZ02cwmHlDQ7p/wL+TTDb7tk6jTofduHeNFo3GTPE9PQ70yWTn7FAvX98dvT2yf1sslnkmk3Vbp9Nsf1comeLUzOPzq/EEXF1zY+MlOzQ0MjKpseFpoWl+nshkMUt0Wu02+BD7tkihRzV8Pu+Jp8A7fGhE2+gfGbHz6vnzw9b0169fz34oKZfMG41eXA/BWVX/QIbFYqa/DYrDE7ooVKpcwBZ8qB3W6ADK8p/1KSnfW6EZGRnUkpLSQr1RTxeJRIfapNIj8AVhb4Nicfhubx+PnonxF6ka9RAy3MhisS/bzyhvoTDbgUCw+Hh53XsokZyYmpxEJFi24QmEDjcGQ67T6TYg5xjSKE7OEit069atogGF6uTgkG4YhUJJGGz2k6b6hhvz8wbRclRXBuuuxWyaHhkZsgdAJjuVoc6dO4c7cfLHI1FxsV/Iunu00pZnRZs3bfrm4sXLpfDMilkOSiA4dDhSKPLR4aENtnEwKDMqLS2Nee/evftkivMaDy+BHIfH5zo5Oj6XlJdfhbpG2wbjcIQBeGTr9fppoa2PQqE+htfLQXjEbLL1kciUalRQSMinLU3NR00mowA+mGKx3CvJVKe7Wo0yAeq61TaYSnMpJeIJY9DDGbY+6NEKLp9f3NnWegy6xRHZsdgc92OogLVrc6TNLd/Adc+1DSYSybcYLEbpQG/vWdiHhoMtPAF/ryOZrOpoa7sFLBYHZCwWi+v0E/t/9fxZ88+IBfF4B2lUVMR2VHh4ePDTp003TCaDhw1KIBBr2Bx2cZ+892/wjIeLAGVhczmZCFTW2VUKAcT/Q/GdQpGosL1VehCuRjyHLzikGug7inLncvPVStW3cPKiCzBqxtPb67CiX5EFHbAagbI47lkB4eEPyu/cLTEYZoMXIu2KiIj5c1t7y18Mc0ZeYOCa7OrqajnKPyAgpV3aWgDTZ72sNMriHxB4s6u9wxsCAhagu7QqVYGLi+vZ0dHhnAVod2RkxLqkpKSxhoYGYmho6Hh+fr4ZderUKcKRY8e+06o1+2C01p2J6uwC0jZvsly5cMEC71ZWTTkc3i6VaqBA6OeX2t3eUYxIANPvjouLSXj9i8Wa8pYtW9x+f1B2a2ZqMhL5H5eQCDZv2wa+/mI/MOj1sOcl1HvVqgR5V/dvCBSFQk97efnskcm6ri32s11HcVBQXFdb+5m5Ob2fqxsTRMfGzjTU1Y2rVUq2tfo8wW6Fou+X5ORkPrzm3JidnQ1FQHQ689TwsHY/NL39lvHK14mXj8/uXpn8LKykhUKlXHdlMJ7A//C7yYKh0egX8vJycw4fPjwHDV44Oz2FbOQAWf8x0dHJiyV4BYrsVpWVjw5hsdjx+Pi4M7X19VE9nV3XoK5kHA7fkJyclFxaWjrpQqefGRsdtRYLkcDT0/szubz7qn2pLtYC+Z0LC+dPIJhzcnKMO3bsoBXfvFkyNzsbjcfjpTExMX+EEfULP/ggs7uj8yeoKwGZA6/s3w0PDx5eErr4JcgN+/TpM3egzolw7Q+GhUV8UlNTWU6luvwyMTG605o+njAgFPrulUqlD94Jmp2dTSoouFCyAB0Ki4r4uKayspzoSL5m05RKpdWKxX55edXVTekLxVryMxJ56ytQPKE/ODzso8dVVU2OjtTrMzMvN3F4VimdXWm3+AJBwaYNG1qWhVrTPwPT1+sTHRzJD/+0IXVzUVHRFJfvmavTqA6YTMjCAHhYSDckCAwWrxF48P+6LDQoKCykRfrshsloEHC53M+VSuU/rcXMzSXAi4P7rMWCQhssrhqd8sPpqal1RoNRAE/Xo8tCeTyPj+Ft7gqy2XA4nCyVSnXhdbfY/iObvXZ01GlPZmbv/wAP1Rnt7TqxggAAAABJRU5ErkJggg=='
+          function drawText(text, x, y){
+            fg.font = '80px Sans-serif';
+            fg.strokeStyle = 'black';
+            fg.lineWidth = 8;
+            fg.strokeText(text, x, y);
+            fg.fillStyle = 'white';
+            fg.fillText(text, x, y);
+        }
+
+        foreground.addEventListener('mousemove', event =>
+        {
+            let p = getMousePos(foreground, event);
+            let x = Math.floor((p.x)/X_PIXELS);
+            let y = Math.floor((p.y-Y_OFFSET)/Y_PIXELS) ;
+
+            fg.clearRect(0, 0, fg.canvas.width, fg.canvas.height);
+
+            if (y<0){
+                return;
+            }
+            drawText((x+ X_IN_PLACE)+"", p.x+40, p.y - 30)
+            drawText((y+ Y_IN_PLACE)+"", p.x+40, p.y + 50)
+
+            fg.lineWidth = 4;
+            let circle_x = x*X_PIXELS+X_PIXELS/2;
+            let circle_y = y*Y_PIXELS+Y_OFFSET+Y_PIXELS/2;
+            fg.beginPath()
+            fg.strokeStyle = 'red';
+            fg.arc(circle_x, circle_y, X_PIXELS-6, 0, 2 * Math.PI, false);
+            fg.stroke()
+
+            fg.beginPath()
+            fg.strokeStyle = 'white';
+            fg.arc(circle_x, circle_y, X_PIXELS-4, 0, 2 * Math.PI, false);
+            fg.stroke()
+
+            fg.beginPath()
+            fg.strokeStyle = 'black';
+            fg.arc(circle_x, circle_y, X_PIXELS, 0, 2 * Math.PI, false);
+            fg.stroke()
+
+        });
+
+        foreground.addEventListener('click', event =>
+        {
+            let p = getMousePos(foreground, event);
+            let x = Math.floor((p.x)/X_PIXELS) + X_IN_PLACE;
+            let y = Math.floor((p.y-Y_OFFSET)/Y_PIXELS) + Y_IN_PLACE;
+
+            if (y<Y_IN_PLACE){
+                return;
+            }
+
+            let url ="https://new.reddit.com/r/place/?cx="+x+"&cy="+y+"&px=23"
+            window.open(url, '_blank').focus();
+        });
+
+    </script>
+
+</body>
+</html>
