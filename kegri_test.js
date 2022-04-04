@@ -2,13 +2,14 @@
 // @name         /r/Place kegri
 // @namespace    http://tampermonkey.net/
 // @version      1.12
-// @description  Draws a template on top of the canvas showing where to click and what colors to use.  Does not do any clicking for you.
+// @description  uwu
 // @author       lob, oralekin
 // @match        https://hot-potato.reddit.com/embed*
 // @icon         https://www.google.com/s2/favicons?sz=64&domain=reddit.com
 // @grant        none
-// @license      MIT
+// @license      GNU GPLv3
 // ==/UserScript==
+
 if (window.top !== window.self) {
     window.addEventListener('load', () => {
 
